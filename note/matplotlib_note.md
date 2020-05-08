@@ -1,41 +1,138 @@
+# 基础知识
+
+## pyplot与pylab
+
+pyplot是matplotlib的子模块，官方文档建议使用plt创建Figure，然后用面向对象方法绘图；pylab是另一个子模块，目前已经废弃，不建议使用
+
+## 导入
+
 ```python
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif']=['SimHei']  #用来正常显示中文标签
-plt.rcParams['axes.unicode_minus']=False    #用来正常显示负号
+
+plt.rcParams['font.sans-serif']=['SimHei']  # 用来正常显示中文标签
+plt.rcParams['axes.unicode_minus']=False    # 用来正常显示负号
 ```
 
-# 函数
 
-## 绘制不同种类的图
 
+## Coding Style
+
+plt中有所谓的"current figure"和"current axes"，使用模块级别的函数时，就是操作当前对象。这种方法与MATLAB的绘图一致，被称为MATLAB style
+
+```python
+plt.plot([1, 2, 3])
+plt.title('example')
+plt.show()
 ```
+
+当然，也可以先显式创建figure和axes，然后对它们进行操作，称作Object Oriented style
+
+```python
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3])
+ax.set_title('example')
+plt.show()
+```
+
+两种方法相比，显然OO更好。Explicit is better than implicit
+
+
+
+# 图片元素
+
+![](./images/parts_of_figure.webp)
+
+## Figure
+
+Figure包含了图像的所有元素，包括Axes，少数特殊的Artists，以及Canvas（注意用户一般不会直接绘制Canavs，而是通过其他对象来操作Canvas）
+
+```python
+fig = plt.figure()
+fig.suptitle('example')
+```
+
+## Axes
+
+Axes是主要的图像内容，包含了数据图线等元素。一个Figure中可以包含若干个Axes，一个Axes只能属于一个Figure。一个Axes中包含若干个Axis（二维图2个，三维图则3个），与每条Axis对应的label（`set_xlabel, set_ylabel`）以及一个title（`set_title`）
+
+```python
+# 使用figure.add_subplot建立axes
+fig = figure()
+ax1 = fig.add_subplot(1, 2, 1)  # 一行两列，一共给fig加了两个Axes，返回是第一个
+ax2 = fig.add_subplot(1, 2, 2)  # 返回第二个Axes（Axes的排序方式是从左到右，从上到下）
+
+ax1.set_title('axes 1')   # 注意每个Axes有自己的标题，figure还有一个大标题
+
+# 使用plt.subplots建立axes
+fig, ax = plt.subplots(3, 3)  # ax是Axes的array
+```
+
+
+
+## Axis
+
+注意：英语中Axis是Axes的单数形式，但Axis和Axes是完全不同的两种对象
+
+Axis是图像的轴，负责图像取值范围（可以用`axes.set_xlim`的方法从Axis所属Axes设置），刻度（tick，刻度位置由Locator对象决定）和刻度标签（ticklabel，刻度标签格式由Formatter对象确定）
+
+## Artist
+
+Artist包括了几乎所有图像元素。Figure, Axes, Axis对象也都是Artist，但多数Artist都被绑定至Axes对象，而不能被多个Axes共享。绘制图像时，所有Artist被画到Canvas上
+
+
+
+# 绘制不同种类的图
+
+## 折线图
+
 plot([x], y, [fmt], ...)
-    绘制折线图，省略x则按照1, 2, ...，fmt参数可以调整绘制格式(fmt同MATLAB的格式)
-    重复多组x, y, fmt/多个plot函数，能够在一张图上绘制多个函数
-    fmt常用格式：rgbyk表示颜色，-直线，--虚线，-.点划线，.o+s^不同形状的点
-    返回matplotlib.lines.Line2D对象
-scatter(x, y, ...)
-    绘制散点图（可以给不同的点赋予不同颜色）
-hist
-    绘制直方图(histogram)
-bar 绘制柱状图
-contour, contourf
-    等高线图
-imshow
-    灰度图
-pie 饼状图
-quiver
-    矢量场图
-plot_surface
-    3D图
+
+绘制折线图，省略x则按照1, 2, ...，fmt参数可以调整绘制格式(fmt同MATLAB的格式)
+
+重复多组x, y, fmt/多个plot函数，能够在一张图上绘制多个函数
+
+fmt常用格式：rgbyk表示颜色，-直线，--虚线，-.点划线，.o+s^不同形状的点
+
+## 散点图
+
+（可以给不同的点赋予不同颜色）
+
+plt.scatter(x, y)
+
+## 直方图
+
+plt.hist
+
+## 柱状图
+
+plt.bar
+
+## 等高线图
+plt.contour
+plt.contourf
+
+## 灰度图
+plt.imshow
+
+## 饼状图
+plt.pie
+
+## 矢量场图
+plt.quiver
+
+## 3D图
+plt.plot_surface
+
+## 误差杆
+plt.errorbar
+
 errorbar(x, y, yerr, xerr, fmt, ecolor, elinewidth, capsize, barsabove)
-    误差杆
-    设置误差杆的线：eb[-1][0].set_linestyle(fmt)，eb是Errorbar Container
-```
+
+设置误差杆的线：eb[-1][0].set_linestyle(fmt)，eb是Errorbar Container
 
 
 
-## 绘图参数
+# 绘图参数
 
 ```
 setp        修改图线参数(粗细，颜色，etc.)，并返回其当前参数
@@ -62,7 +159,7 @@ text(x, y, s)
 
 
 
-## 轴参数
+# 轴参数
 
 ```
 axis(*v, **args)
@@ -80,7 +177,7 @@ yticks(ticks=None, labels=None)
 
 
 
-## 其他函数
+# 其他函数
 
 ```
 show        显示图形
@@ -93,7 +190,7 @@ sca         set current axes，把指定的Axes实例设置为活跃区的Axes
 grid        绘制网格
 ```
 
-## 绘图区域相关
+# 绘图区域相关
 
 ```
 figure(num=None, figsize=None, dpi=None, facecolor=None, edgecolor=None,
@@ -131,32 +228,4 @@ subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     自己的理解：创建新的绘图区域，指定有几个子图。figure(figsize=(6.8, 8))等可以调尺寸，画完了之后用tight_layout可以自动排版
 ```
 
-
-
-# 类
-
-## Figure类
-
-```
-matplotlib.figure.Figure(figsize=None, dpi=None, facecolor=None,
-                         edgecolor=None, linewidth=0.0,frameon=None,
-                         subplotpars=None, tight_layout=None,
-                         constrained_layout=None)
-    The top level container for all the plot elements
-    Attributes
-        （略）
-    methods
-        （略）
-```
-
-
-
-## Axes类
-
-```
-matplotlib.axes.Axes(fig, rect, facecolor=None, frameon=True,
-                     sharex=None, sharey=None, label='',
-                     xscale=None, yscale=None, **kwargs)
-    包含了大部分图的内容（Axis, Tick, Line2D, Text, Polygon, etc.）以及坐标
-```
 

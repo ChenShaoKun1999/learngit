@@ -74,7 +74,7 @@ img = cv2.imread('test.jpg')
 
 #键盘事件
 key = 0
-while key != 27:
+while key != 27:   # esc退出
     cv2.imshow('image', img)
     key = cv2.waitKey()
 

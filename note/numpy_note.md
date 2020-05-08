@@ -11,7 +11,7 @@ numerical python
 | float128          | 扩展精度浮点数                             |
 | complex64/128/256 | 实虚部分别用x/2位浮点数表示的复数          |
 
-另外还有默认数据类型`int_`, `float_`, `complex_`
+默认数据类型`int_`, `float_`, `complex_`
 
 # ndarrray
 
@@ -20,24 +20,41 @@ N维定长数组，表示一个标量/矢量/矩阵/张量
 
 ## indexing
 
+### simple indexing
+
+ 一维同list；高维数组可以用类似`array[1, -1]`的方式引用
+
+### bool indexing
+
+用一个同shape的布尔数组来索引
+
+```python
+arr = np.array([1, 3, 2, 1])
+bool_arr = [True, True, False, True]
+arr[bool_arr]   # array([1, 3, 1])
+arr[arr > 1]    # array([3, 2])
 ```
-index
-    一维同list；高维数组可以用类似array[1, -1]的方式引用
-bool indexing
-    用一个同shape布尔数组来索引，e.g.
-    bool_arr = [True, False, True]
-    array = [0, 1, 2]
-    array[bool] = [0, 2]
-    获取布尔数组的方法例子：bool_arr = (array>=1)
-fancy indexing
-    用一个array-like object进行索引， e.g.
-    array[[0, 2, 4]]            #第0，2，4行
-    array[[[i1,i2],[j1,j2]]]    #(i1, j1)和(i2, j2)元素
-    用ndarray做fancy indexing好像会有奇怪的错误
-slice
-   切片的部分不会被复制！
-    一维的切片同list，多维数组可以分别切片，e.g. array[0:5, ::-1]
+
+### fancy indexing
+
+用一个array-like object进行索引。用ndarray做fancy indexing好像会有奇怪的错误
+
+```python
+arr = np.eye(8)
+arr[[0, 2, 4]]       # 第0, 2, 4行
+arr[[1, 1], [2, 5]]  # (1, 1)和(2, 5)元素
 ```
+
+### slice
+
+类似内建的切片，但切片的部分不会被复制
+
+```python
+arr = np.ones(shape=(10, 8))
+array[0:5, ::-1]
+```
+
+
 
 ## 初始化
 
@@ -127,12 +144,12 @@ array([1., 2., 3., 4., 5.])
 
 ### 矩阵运算
 
-```
-#矩阵乘法。以下两种方法等价，不改变原矩阵
+```python
+# 矩阵乘法。以下两种方法等价，不改变原矩阵
 np.dot(A, B)
 A.dob(B)
 
-#矩阵转置
+# 矩阵转置
 A.T
 ```
 
