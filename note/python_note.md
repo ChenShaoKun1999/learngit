@@ -1466,8 +1466,8 @@ cursor.execute('select * from user')
 values = cursor.fetchall()      # 查询结果，List[Tuple]
 
 # 提交事务并关闭
-cursor.close()
 conn.commit()
+cursor.close()
 conn.close()
 ```
 
@@ -1553,8 +1553,6 @@ request.urlretrieve(url, filename, hook)
     # hook是一个callable，将在开始时和每加载一个chunk后调用
 ```
 
-
-
 ### parse
 
 ```python
@@ -1571,8 +1569,6 @@ url = '/dev/peps/'
 parse.urljoin(base, url)  # 返回'https://www.python.org/dev/peps/'
 ```
 
-
-
 ## warnings
 
 ```python
@@ -1582,6 +1578,30 @@ warnings.warn('mesage', UserWarning)
 # available warning classes: UserWarning, DeprecationWarning,
 # SyntaxWarning, RuntimeWarning, ResourceWarning, FutureWarning.
 ```
+
+## wave
+
+处理wav文件
+
+```python
+import wave
+
+# 读wav文件
+with open('test.wav', 'rb') as fp:
+    fp.getchannels()       # 声道数量
+    fp.getsampwidth()      # 采样深度（字节数）
+    fp.getframerate()      # 采样频率
+    fp.readframes(100)     # 读取并返回bytes对象的n帧音频
+    fp.rewind()            # 回到文件开头
+    fp.setpos(100)         # 设置文件指针
+    fp.tell()              # 获取文件指针位置
+
+# 写wav文件
+with open('mywav.wav', 'wb') as fp:
+    # 三个相应的set方法
+```
+
+
 
 # 有用的第三方库
 
@@ -1594,6 +1614,44 @@ pydocmd simple modulename+ > doc.md
 ```
 
 注意加号不可省略。生成多个模块的文档只需要同时给多个模块名字（用空格隔开）
+
+## sounddevice
+
+```python
+import sounddevice as sd
+import numpy as np
+
+# 默认值设置
+fs = 44100
+sd.default.samplerate = fs  # 采样率(Hz)
+sd.default.channels = 1     # 声道
+duration = 5    # 持续时间(sec)
+
+# 录音
+myrecording = sd.rec(duration * fs, blocking=False)
+sd.wait()   # 等待到录音结束，或者用blocking = True
+# 录音得到一个np.ndarray，dtype = float，音量不知道怎么算的，振幅为1就已经挺大声了
+
+# 播放
+sd.play(myrecording, blocking=True)
+
+# Stream
+def func(indata, outdata, frames, time, status):
+    if status:
+        print(status)
+    outdata[:] = indata
+
+with sd.Stream(callback=func):
+    sd.sleep(duration*1000)
+
+# InputStream
+```
+
+回调函数详述
+
+sounddevice每隔一定时间会调用一次回调函数。如果没有回调函数，将会在阻塞模式（blocking mode）下运行，使用read write方法进行IO
+
+`callback(indata:ndarray, outdata:ndarray, frames:int, time:cdata, )`
 
 # 杂项
 

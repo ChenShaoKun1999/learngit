@@ -43,31 +43,32 @@ extern	声明外部变量时使用
 
 # 语句
 
-条件判断语句
-1.if
+## 条件判断
+
+```
 if (表达式) 语句
 else if (表达式) 语句
 else 语句
 
-2)switch
 switch(整型表达式) {
 	case 整型常量表达式: 语句序列
 	default : 语句序列
 }
+```
 
-循环结构
-1)while
+## 循环结构
+
+```
 while (表达式) 语句
 
-2)do while
-do {语句} while (表达式) ;
+do {语句} while (表达式)
 
-3)for
-for ( 表达式1 ; 表达式2 ; 表达式3 ) 语句
 for ( 循环变量初始化 ; 条件判断 ; 循环变量改变 ) 语句
 执行顺序为1->( 2->语句->3)
+```
 
-控制转向语句
+## 控制转向语句
+
 1)break
 提前结束循环
 2)goto 语句标号;
@@ -223,8 +224,8 @@ stdio.h
 	gets()	输入字符串
 
 stdlib.h
-	int system(const char *string)		执行一个CMD命令
-	void exit(int status)			结束程序。参数为0表示正常退出，不为0表示异常
+	int system(const char *string)      执行一个CMD命令
+	void exit(int status)               结束程序。参数为0表示正常退出，不为0表示异常
 
 ​```
 void srand(unsigned seed)		设置随机种子

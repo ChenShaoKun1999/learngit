@@ -36,8 +36,7 @@
 ```sql
 ALTER TABLE students
 ADD CONSTRAINT constraint_class_id  -- 约束名可任选
-FOREIGN KEY (class_id)
-REFERENCES classes (id);
+FOREIGN KEY (class_id) REFERENCES classes (id);
 ```
 
 以上例子中，将students表中class_id字段与classes表的id字段关联起来。通过定义外键约束，关系数据库可以保证无法插入无效的数据。但大部分数据库为了追求性能而用程序来约束，而不定义外键约束
@@ -168,8 +167,8 @@ DROP DATABASE school;    -- 删除
 CREATE TABLE students(
     id INT UNSIGNED AUTO_INCREMENT,
     class_id INT UNSIGNED DEFAULT 1,
-    name VARCHAR(100) NOT NULL,
-    score INT UNSIGNED,
+    name VARCHAR(100) NOT NULL comment "姓名",
+    score INT UNSIGNED comment "分数",
     PRIMARY KEY (id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;  -- 设置存储引擎和编码
 ```

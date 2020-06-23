@@ -16,18 +16,18 @@ int main()
 
 ### 整型
 
+| type      | length              | max value                                 |
+| --------- | ------------------- | ----------------------------------------- |
+| bool      | 1bit                | true, false，数字、指针可以隐式转换为bool |
+| char      | 8bit                | 127或255(有无符号取决于编译器)            |
+| short     | $\ge$16bit          | 32767                                     |
+| int       | depend on system    | 2.15e9 (32bit)                            |
+| long      | $\ge$ min(32, int)  | 2.15e9 (32bit)                            |
+| long long | $\ge$ min(64, long) | 9.22e18 (64bit)                           |
+
+无符号数前缀`unsigned`，不能存储负数，最大值翻倍。当unsigned溢出时，会去到另一头，有符号类型溢出时不保证。通常情况都用int，超过20亿用long long，存储小数字且必须节省内存时使用short和char
+
 ```
-type       length                       max
-bool       1bit                         true, false，数字、指针可以隐式转换为bool
-char       8bit                         127 or 255(有无符号取决于编译器)
-short      >= 16bit                     32767
-int        depend on system             2.15e9 (32bit)
-long       >= min(32, 8*sizeof(int))    2.15e9 (32bit)
-long long  >= min(64, 8*sizeof(long))   9.22e18 (64bit)
-
-unsigned int等无符号类型不能存储负数，最大值翻倍。当unsigned溢出时，会去到另一头，有符号类型溢出时不保证
-通常情况都用int，超过20亿用long long，存储小数字且必须节省内存时使用short和char
-
 不同进制的字面值表示
 0xAA(hex), 071(oct)
 
@@ -89,6 +89,8 @@ c->name = "beer";
 (*c).price = 3.5;
 ```
 
+C++中的结构体可以定义成员函数，与类比较类似。但区别是，struct的成员默认是public，默认public继承
+
 ### 共用体(union)
 
 ```c++
@@ -138,29 +140,29 @@ p = &i;       //取地址运算符&
 *p = 5;       //间接寻址运算符*
 
 //指针与内存管理
-int *p = new int;  //常规定义的变量在栈中，而使用new定义的内存在堆中
+int* p = new int;  //常规定义的变量在栈中，而使用new定义的内存在堆中
 delete p;
     //释放p指向的内存，不删除p，尝试释放一块不是new来的内存后果不确定
     //释放空指针是安全的，释放栈空间中的地址会引发错误
-int *p_arr = new int[10];  //使用new生成动态数组(dynamic array)
+int* p_arr = new int[10];  //使用new生成动态数组(dynamic array)
 delete [] p;               //new和delete时的方括号如果不匹配，行为无定义
 
 //指针算数(pointer arithmetic)
-int *p = new int[10];
+int* p = new int[10];
 p_arr[3] = 3;
 cout << *(p_arr+3);  //3
+```
 
-/*
 数组和指针的区别：
 1.数组值不能改，指针作为变量可以随意更改
-2.sizeof(int*) = 指针的长度，sizeof(int[10]) = 10*sizeof(int)
-*/
+2.`sizeof(int*)` = 指针的长度，`sizeof(int[10])` = `10*sizeof(int)`
 
-//C++的内存处理简介
-//自动存储：函数内部定义的变量使用自动存储空间（栈空间），称自动变量(automatic variable)，是一个局部变量，作用域是包含它的代码块（即大括号），执行代码块时变量以此被放进栈空间，代码块结束时被依次释放
-//静态存储：在函数外定义的变量/用关键词static声明的变量，整个程序执行期间存在
-//动态变量：使用new分配的空间，在自由存储空间(free store)，或称堆空间，生存期可以随意控制
-```
+
+
+C++的内存处理简介
+自动存储：函数内部定义的变量使用自动存储空间（栈空间），称自动变量(automatic variable)，是一个局部变量，作用域是包含它的代码块（即大括号），执行代码块时变量以此被放进栈空间，代码块结束时被依次释放
+静态存储：在函数外定义的变量/用关键词static声明的变量，整个程序执行期间存在
+动态变量：使用new分配的空间，在自由存储空间(free store)，或称堆空间，生存期可以随意控制
 
 # 函数
 
@@ -244,11 +246,11 @@ auto Func(T1 x, T2 y) -> decltype(x+y)
 
 ### 内联函数(inline function)
 
-程序运行期间顺序执行指令（储存在内存中的机器指令）。常规函数调用时，先跳到该函数的地址，执行完毕后再跳回原来的地址；使用内联函数，则在编译时直接在调用的位置后面加上这个函数的指令，于是运行时就不用跳来跳去了，可以节省一点时间，但代价是每处调用都要一份副本，增加了内存消耗
+程序运行期间顺序执行指令（储存在内存中的机器指令）。常规函数调用时，先保护寄存器、跳到该函数的地址，执行完毕后再跳回原来的地址、恢复寄存器，需要消耗一点点时间；使用内联函数，则在编译时直接在调用的位置后面加上这个函数的指令，于是运行时就不用跳来跳去了，可以节省一点时间，但代价是每个调用处都要一份机器码的副本，消耗额外内存
 
-效果类似C语言用宏来计算，但是比宏安全得多。
+效果类似C语言用宏来计算，但是比宏安全得多
 
-只有被调函数执行时间很短、被调用次数很多时才有较高使用价值。习惯上把内联函数直接定义在最开头一行写完。需要多行的函数一般也不适合做内联函数
+只有被调函数执行时间很短、被调用次数很多时才有较高使用价值。习惯上把内联函数直接定义在最开头一行写完。一般只有10行以内能写完的才会写成内联函数
 
 ```c++
 inline double square(double x){return x*x;}
@@ -266,10 +268,9 @@ void f(int &i)
 {
     x = 1;
     /*
-    不同于按值传递，被调用函数内的变量和进行调用处的变量是同一个东西
-    它最大的价值在于引用结构和类
-    相比于按值传递，它不需要复制，可以节省时间和内存
-    相比于用指针传参，它更加方便
+    不同于按值传递，被调用函数内的变量和进行调用处的变量是同一个对象
+    它最大的价值在于引用结构和类：相比于按值传递，它不需要复制，可以
+    节省时间和内存；相比于用指针传参，它更加方便
     引用传参的实参必须是一个变量，不能是表达式或常量
     */
 }
@@ -283,7 +284,7 @@ void f(const double & a)
     a的值在函数内部不能被修改，否则会报错（一些老的编译器上会出现一些奇怪结果）
     如果实参不是左值/需要隐式转换，会为它创建一个临时变量
     有const才会有临时变量，因为没有const时，如果创建了临时变量，可能我以为我改了
-    某个变量而实际上时临时变量被改了，原变量没动；有const时，无论如何我都不能改原
+    某个变量而实际上只有临时变量被改了，原变量没动；有const时，无论如何都不能改原
     变量，所以就无所谓了
     */
 }
@@ -291,14 +292,13 @@ void f(const double & a)
 
 ### 默认参数
 
+可以在函数原型中给出默认参数
+
 ```c++
-int func(i, j=0, k=0)
-{
-    //do something
-}
-//类似python，必须是先有无默认值的、再是有默认值的
-//不同的是，调用的时候参数必须从左向右填，而且不允许跳过，比如func(1, , 2)是非法的
+int func(i, j=0, k=0);
 ```
+
+类似python的位置参数，必须是先有无默认值的、再是有默认值的。不同的是，调用的时候必须按位置传参，而且不允许跳过，比如func(1, , 2)是非法的
 
 # 内存模型与名称空间
 
@@ -355,7 +355,19 @@ a;                  //用using指令访问名称空间内全部标识符
 
 C++允许将源代码分散在多个文件中，分别编译后连接起来，其好处是结构清晰管理方便，并且方便代码复用。一种典型的分割方法是：
 
-* 头文件：写结构体声明和函数原型，在需要使用这些的文件头都include头文件，这样，修改函数时只需要修改头文件中的原型。不要包含函数的定义，因为如果头文件被include多次，重复定义会引起错误
+* 头文件：写结构体声明和函数原型，在需要使用这些的文件头都include头文件，这样，修改函数时只需要修改头文件中的原型。按照惯例，头文件不要包含函数的定义。同时，头文件需要防止重复include
+
+```c++
+// 第一种防止重复include的方法
+#pragma once //最开头加上这个宏，就不会被重复include。不再C++标准中，但是现代编译器广泛支持
+
+// 第二种方法利用一个自选的宏
+#ifndef PROJNAME_FOLDERNAME_FILENAME_H_
+#define PROJNAME_FOLDERNAME_FILENAME_H_
+// 这里放头文件代码
+#endif
+```
+
 * 结构：函数的代码
 * 调用：调用函数的代码
 
@@ -367,11 +379,6 @@ C++允许将源代码分散在多个文件中，分别编译后连接起来，�
 //声明
 class Stock   //习惯上类的首字母大写
 {
-private:      //私有成员，编译器只允许从成员函数访问私有成员，属于数据保护封装。可以省略private
-    std::string company;
-    int number;
-    double price;
-    double total_val;
 public:       //公有成员
     Stock(const std::string& co = "ERROR", long n = 0, double price_ = 0.0);
     ~Stock();
@@ -380,6 +387,11 @@ public:       //公有成员
     void sell(long num, double price);
     void show() const;   //const表示方法不会修改对象，const对象只能使用const的方法
     double total() const {return total_val;} //内联方法，直接声明的同时定义
+private:      //私有成员，编译器只允许从成员函数访问私有成员，属于数据保护封装。可以省略private
+    std::string company;
+    int number;
+    double price;
+    double total_val;
 };
 
 //构造函数(constructor)
@@ -462,7 +474,7 @@ Time operator*(double m, const Time & t)
 friend /*声明*/;
 ```
 
-### 重载<<运算符
+### 重载`<<`运算符
 
 std::cout是一个ostream对象，ostream已经重载了<<，ostream << 基本类型变量都能得到输出数据流，因此通过重载<<把自定义的类转换成基本类型，就能实现自定义类的输出。又因为一般想把cout作为左操作数，常使用友元函数来重载
 
@@ -486,4 +498,63 @@ ostream& operator<<(std::ostream& os, const time& t)
 
 ## 类型转换
 
-# 动态内存分配
+
+
+# string
+
+string其实不属于STL，但因为都是很有用的轮子，记录在这一节
+
+* C语言字符串（以`\0`结尾的`char[]`）
+  * string.h（C语言）
+  * cstring（C++）
+* C++字符串（`std::string`）
+  * string
+
+```c++
+#include <string>
+
+int main()
+{
+    // 构造
+    std::string s1("This is a string");  // 用const char*构造
+    std::string s2;                      // 构造空字符串
+    
+    // 用非常符合直觉的方式进行string / C string / char运算
+    s2 = "assign";
+    s2 += "Concatenate";
+    s2 = s2 + s1;
+    s2[0];
+    
+    // IO
+    std::cin >> s1;
+    getline(cin, s2);
+}
+```
+
+# 标准模板库
+
+标准模板库（Standard Template Library，STL）提供了一系列泛型的容器、迭代器、函数对象和算法的模板
+
+# 文件读写
+
+```c++
+#include <iostream>
+#include <fstream>
+
+int main()
+{
+    using std::ios
+    std::ofstream ofp;
+    ofp.open("filename.txt", ios::out | ios::trunc);
+    ofp << "Write to file" << std::endl;
+    ofp.close()
+
+    std::ifstream ifp;
+    ifp.open("filename.txt", ios::in);
+    char s[100];
+    ifp >> s;
+    ifp.eof();          //判断文件是否结束
+    ifp.close();
+}
+```
+

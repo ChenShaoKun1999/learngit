@@ -13,8 +13,6 @@ plt.rcParams['font.sans-serif']=['SimHei']  # 用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False    # 用来正常显示负号
 ```
 
-
-
 ## Coding Style
 
 plt中有所谓的"current figure"和"current axes"，使用模块级别的函数时，就是操作当前对象。这种方法与MATLAB的绘图一致，被称为MATLAB style
@@ -36,101 +34,84 @@ plt.show()
 
 两种方法相比，显然OO更好。Explicit is better than implicit
 
-
-
 # 图片元素
 
-![](./images/parts_of_figure.webp)
+<img src="./images/parts_of_figure.webp" style="zoom:67%;" />
 
-## Figure
+* **Figure**
 
 Figure包含了图像的所有元素，包括Axes，少数特殊的Artists，以及Canvas（注意用户一般不会直接绘制Canavs，而是通过其他对象来操作Canvas）
 
-```python
-fig = plt.figure()
-fig.suptitle('example')
-```
+* **Axes**
 
-## Axes
+Axes是主要的图像内容，包含了数据图线等元素。一个Figure中可以包含若干个Axes，一个Axes只能属于一个Figure。大部分其他图像元素都包含于Axes，如Axis（二维图2个，三维图则3个），label，title等
 
-Axes是主要的图像内容，包含了数据图线等元素。一个Figure中可以包含若干个Axes，一个Axes只能属于一个Figure。一个Axes中包含若干个Axis（二维图2个，三维图则3个），与每条Axis对应的label（`set_xlabel, set_ylabel`）以及一个title（`set_title`）
-
-```python
-# 使用figure.add_subplot建立axes
-fig = figure()
-ax1 = fig.add_subplot(1, 2, 1)  # 一行两列，一共给fig加了两个Axes，返回是第一个
-ax2 = fig.add_subplot(1, 2, 2)  # 返回第二个Axes（Axes的排序方式是从左到右，从上到下）
-
-ax1.set_title('axes 1')   # 注意每个Axes有自己的标题，figure还有一个大标题
-
-# 使用plt.subplots建立axes
-fig, ax = plt.subplots(3, 3)  # ax是Axes的array
-```
-
-
-
-## Axis
+* **Axis**
 
 注意：英语中Axis是Axes的单数形式，但Axis和Axes是完全不同的两种对象
 
 Axis是图像的轴，负责图像取值范围（可以用`axes.set_xlim`的方法从Axis所属Axes设置），刻度（tick，刻度位置由Locator对象决定）和刻度标签（ticklabel，刻度标签格式由Formatter对象确定）
 
-## Artist
+* **Artist**
 
-Artist包括了几乎所有图像元素。Figure, Axes, Axis对象也都是Artist，但多数Artist都被绑定至Axes对象，而不能被多个Axes共享。绘制图像时，所有Artist被画到Canvas上
+Artist包括了几乎所有图像元素。Figure, Axes, Axis都是Artist的子类，但多数Artist都被绑定至Axes对象，而不能被多个Axes共享。绘制图像时，所有Artist被画到Canvas上
 
+# 示例
 
+```python
+import numpy as np
+import matplotlib.pyplot as plt
 
-# 绘制不同种类的图
+# 初始化Figure和Axes
+# 使用figure.add_subplot建立axes
+fig = figure()
+ax1 = fig.add_subplot(1, 2, 1)  # 一行两列，一共给fig加了两个Axes，返回是第一个
+ax2 = fig.add_subplot(1, 2, 2)  # 返回第二个Axes（Axes的排序方式是从左到右，从上到下）
+# 使用plt.subplots建立axes
+fig, ax = plt.subplots(1, 2)    # ax是Array[Axes]
+
+# 绘图
+x = np.linspace(0, 1)
+y = np.exp(x)
+line = ax1.plot(x, y)
+scatter = ax2.scatter(x**2, y)
+
+# 设置标题，标签
+ax1.set_title('axes 1')   # 注意每个Axes有自己的标题，figure还有一个大标题
+fig.suptitle('example')   # figure标题
+ax1.set_xlabel('x')
+ax1.set_ylabel('$e^x$')   # 使用latex
+
+# 设置坐标轴
+ax1.set_xscale('log')  # 坐标系选取
+ax1.set_xlim(0, 1)     # 坐标范围。可以用get_xlim获取
+ax1.tick_params('x', which='both', left=False) # tick样式
+ax1.set_xticks(np.linspace(0, 1, 5))           # tick位置
+ax1.set_xticklabels([*'12345'])              # tick标签
+
+# 另一种设置tick的方式
+xt = ax1.get_xticks()
+xtl = ax1.get_xticklabels()
+# edit xt and xtl
+ax1.set_xticks(xt)
+ax1.set_xticklabels(xtl)
+
+# 其他
+ax1.grid()  # 网格
+plt.tight_layout()  # 自动调整排版
+```
+
+# 绘图
 
 ## 折线图
 
-plot([x], y, [fmt], ...)
+`plot([x], y, [fmt], ...)`
 
 绘制折线图，省略x则按照1, 2, ...，fmt参数可以调整绘制格式(fmt同MATLAB的格式)
 
 重复多组x, y, fmt/多个plot函数，能够在一张图上绘制多个函数
 
 fmt常用格式：rgbyk表示颜色，-直线，--虚线，-.点划线，.o+s^不同形状的点
-
-## 散点图
-
-（可以给不同的点赋予不同颜色）
-
-plt.scatter(x, y)
-
-## 直方图
-
-plt.hist
-
-## 柱状图
-
-plt.bar
-
-## 等高线图
-plt.contour
-plt.contourf
-
-## 灰度图
-plt.imshow
-
-## 饼状图
-plt.pie
-
-## 矢量场图
-plt.quiver
-
-## 3D图
-plt.plot_surface
-
-## 误差杆
-plt.errorbar
-
-errorbar(x, y, yerr, xerr, fmt, ecolor, elinewidth, capsize, barsabove)
-
-设置误差杆的线：eb[-1][0].set_linestyle(fmt)，eb是Errorbar Container
-
-
 
 # 绘图参数
 
@@ -142,7 +123,7 @@ setp        修改图线参数(粗细，颜色，etc.)，并返回其当前参�
             也可以调用line的方法调整
 xlabel, ylabel
             坐标轴的标签
-xscale, yxcale
+xscale, yscale
             对数坐标等，"linear", "log", "symlog", "logit", ...
 title       标题
 legend      添加图例，在需要图例的plot函数添加label参数
@@ -157,26 +138,6 @@ text(x, y, s)
             xlabel, title等其实都是text的wrapper
 ```
 
-
-
-# 轴参数
-
-```
-axis(*v, **args)
-    *v是字符串指令列表，**args = [xmin, xmax, ymin, ymax]调整spines的上下限
-    返回(xmin, xmax, ymin, ymax)
-xlim(left, right)
-ylim(left, right)
-    设置坐标上下限，返回当前上下限
-xticks(ticks=None, labels=None)
-yticks(ticks=None, labels=None)
-    ticks, labels都是array-like，标识坐标轴上那些位置显示值、显示什么
-    e.g. np.xticks([np.pi/2, np.pi], ['$\frac{\pi}{2}$', '$\pi$'])
-    返回当前的ticks, label. 如xticks([])可以清除当前设置
-```
-
-
-
 # 其他函数
 
 ```
@@ -187,45 +148,42 @@ gcf         get current figure
 cla         clear current axes
 clf         clear current figure (注意：figure.close()才能完全释放内存)
 sca         set current axes，把指定的Axes实例设置为活跃区的Axes
-grid        绘制网格
 ```
 
-# 绘图区域相关
+# 动态图
 
+`FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, *, cache_frame_data=True, **kwargs)`
+
+* fig: pyplot figure
+* func : `func(frame, *fargs) -> Iterable[artist]`，回调函数，绘制每一帧。如果`blit == True`，必须返回所有被修改 / 创建的Artist的迭代器，否则无法正常绘制；如果`blit == False`，返回值无所谓
+* frames：`Union[Iterable[object], int, None]`，迭代结果作为参数被传给func，使用int时相当于range，使用None相当于itertools.count
+* init_func：初始化函数
+* fargs：调用func的额外参数
+* interval：number，两帧之间的间隔时间，单位毫秒，默认200
+* blit：bool，当blit = True时，只有被修改的Artist才被重新绘制
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+def update(phase, line):
+    y = line.get_ydata()
+    line.set_ydata(np.roll(y, -5))
+    return [line]
+
+def main():
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 2*np.pi, 100, endpoint=False)
+    line = ax.plot(x, np.sin(x))
+    anim = FuncAnimation(fig, func=update, frames=np.linspace(0, 2*np.pi, 100),
+            fargs=line, blit=True) 
+    # 注意！一定要将animation赋给一个变量，否则没有引用，会被当作垃圾清理
+    plt.show()
+    return 0
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
 ```
-figure(num=None, figsize=None, dpi=None, facecolor=None, edgecolor=None,
-       frameon=True, FigureClass=<class 'matplotlib.figure.Figure'>,
-       clear=False, **kwargs)
-    create a new figure
-    num figure的编号，int, string, etc. 默认为递增整数，可以通过fig.number访问
-        若给的num已经存在，returns a reference to it;
-        否则，创建一个新figure并返回
-    figsize (float, float)，figure大小(inches)
-    dpi int
-    clear   如果图已经存在，且clear=True则清除其内容
-
-subplot(*args, **kwargs)
-    给当前figure加一个subplot，wrapper of Figure.add_subplot
-    *args
-        三位整数或者三个整数，表示子图的位置(nrols, ncols, index)
-        nrols, ncols表示行列各有几张子图
-        index表示摆放次序，取1, 2, ..., nrols*ncols
-    projection
-        取什么坐标系，None, 'aitoff', 'hammer', 'lambert', 'mollweide',
-        'polar', 'rectilinear'
-    polar
-        polar=True等于projection='polar'
-    sharex, sharey
-        axes, 使用提供的sxes
-    label
-        str, 返回axes的标签
-    自己的理解：把当前绘图活跃区换到指定的位置
-
-subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
-         subplot_kw=None, gridspec_kw=None, **fig_kw)
-    创建一个新figure以及它的若干subplot
-    返回Figure, Axes或Axes列表
-    自己的理解：创建新的绘图区域，指定有几个子图。figure(figsize=(6.8, 8))等可以调尺寸，画完了之后用tight_layout可以自动排版
-```
-
 
