@@ -142,7 +142,7 @@ MsgBox, The year is %A_Year%.`n
 
 ## 控制流
 
-* 分支：if - else，switch，使用方法同C。还有一些历史遗留的其他用法，但是不推荐
+* 分支：if - else，switch，使用方法同C。不要忘记括号括起条件表达式，否则可能运行的就不是if而是某个历史遗留的分支命令
 
 * 循环
 
@@ -274,3 +274,68 @@ SoundBeep
 注：后一个不带窗口名称的#ifWinActive/ifWinExist是标志了contest sensitivity的结束
 ```
 
+# 示例
+
+```
+; 植物大战僵尸的控制脚本（部分）
+
+; 全局设置 & 全局变量
+CoordMode Mouse, Client
+mode := "pool"
+
+; 点击cnt次泳池的(i, j)格子
+PoolField(i, j, cnt=1) {
+    x := j * 80 + 80
+    y := i * 85 + 140
+    Click %x%, %y%, %cnt%
+    Sleep 50
+    Return 0
+}
+
+; 切换模式
+$Esc::
+    if ("off" = mode) {
+        Send {Esc}
+    } else {
+        mode := "off"
+        MsgBox Current Mode: %mode%
+    }
+    Return
+
+; 种植植物
+~1::
+~2::
+~3::
+~4::
+~5::
+~6::
+~7::
+~8::
+~9::
+~0::
+    num := SubStr(A_ThisHotkey, 2)
+    index := (0 = num) ? 9 : num - 1
+    MouseGetPos x, y
+    if ("pool" = mode || "garden" = mode) {
+        Plants(index)
+        Sleep 50
+        Click %x%, %y%, 1
+    } else if ("zen" = mode) {
+        Zen_tool(index)
+        Sleep 100
+        Click %x%, %y%, 0
+        Sleep 100
+        Click 1
+    }
+    Return
+```
+
+
+
+```
+; 我的世界滑稽纪元2自动砍滑稽脚本
+
+
+```
+
+<span style="background-color:#c7d1f0">abc</span>
