@@ -2,7 +2,11 @@
 
 HTML定义了网页的内容，CSS 描述了网页的布局，JavaScript描述网页的行为
 
+原则上来说三个都可以塞进html页面里，但这就很难开发了，所以更常见的做法是三者分开，在html里面调CSS和JS
+
 # HTML
+
+## 基础
 
 ```html
 <!DOCTYPE html>   <!-- 声明是html5文档。标签对大小写不敏感，在将来版本会强制用小写标签 -->
@@ -19,7 +23,8 @@ HTML定义了网页的内容，CSS 描述了网页的布局，JavaScript描述�
         <h1>一级标题</h1>
         <p>段落</p>
         <a href="http://www.google.com">超文本链接</a>
-        <img src="/images/logo.png" width="258" height="39" />
+        <img src="/images/logo.png" width="100%" height="30" />
+            <!-- 宽度为页面的100%，高度30像素。会自动拉伸图片，如果宽高只指定一个就能保持宽高比 -->
         <br>  <!-- 换行。源代码中的连续空白、空行都会被当作一个空格 -->
         <hr>  <!-- 分割线 -->
 
@@ -76,88 +81,208 @@ HTML定义了网页的内容，CSS 描述了网页的布局，JavaScript描述�
 </html>
 ```
 
-# JavaScript基本用法
+## 布局
+
+以CSS定位div元素布局为例
 
 ```html
+<!DOCTYPE html>
 <html>
     <head>
-        <script>
-            //在head中定义函数
-            function myFunction()
-            {
-                document.getElementById("demo").innerHTML="Hello World!";
-            }
-        </script>
+        <title> example </title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="style.css">
     </head>
-    
+
     <body>
-        <p id="demo">
-            demonstration
-        </p>
-        <!-- 在body中调用函数 -->
-        <button type="button" onclick="myFunction()">JS</button>
-        
-        <!-- 其实也可以在body中写js代码 -->
-        <script>
-            function funcInBody() {\*do something*\}
-        </script>
-        
-        <!-- 也可以使用外部文件的代码 -->
-        <script src="myScript.js"></script>
-        
-        <!-- 更通用的用法
-        <some-HTML-element some-event='JavaScript 代码'>
-        -->
+        <div id="header">这是页眉</div>
+        <div id="nav">这是导航</div>
+        <div id="section">这是正文</div>
+        <div id="footer">这是页脚</div>
     </body>
 </html>
 ```
 
-# JavaScript语法
+```css
+#header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+#nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px; 
+}
+#section {
+    width:350px;
+    float:left;
+    padding:10px; 
+}
+#footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
+}
+```
+
+效果如下：
+
+<img src="./images/html_layout.png" style="zoom:50%;" />
+
+# CSS
+
+CSS指层叠样式表（**C**ascading **S**tyle **S**heets），它定义了HTML样式，存储于可层叠的表中
+
+```css
+/* 选择器，作用于所有<p>标签 */
+p
+{
+    color:red;
+    text-align:center;
+}
+
+/* id选择器，作用于有这个id的html标签，例如：<div id="para1"> */
+#para1 {text-align:center; color:red;}
+
+/* class选择器，作用于所有class="center"的html标签 */
+.center {text-align:center;}
+```
+
+## 使用样式表
+
+```html
+<head>
+    <!-- 外部样式表 external style sheet -->
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+    
+    <!-- 内部样式表 internal style sheet -->
+    <style>
+        hr {color:sienna;}
+        p {margin-left:20px;}
+        body {background-image:url("images/back40.gif");}
+    </style>
+</head>
+
+<body>
+    <!-- 内联样式 inline style。会导致内容和样式混杂、样式无法复用 -->
+    <p style="color:sienna;margin-left:20px">这是一个段落。</p>
+</body>
+```
+
+当样式重复定义时，冲突属性取最后定义的
+
+# JavaScript
+
+## JS代码块
+
+一般在head中或者body的底部定义script，在有需要的时候调用。代码在网页加载时会被运行一次
+
+```html
+<head>
+    <!-- 使用外部脚本 -->
+    <script src="myScript.js"></script>
+
+    <!-- 在head中写脚本 -->
+    <script>
+        function func() {document.getElementById("demo").innerHTML="Hello World!";}
+    </script>
+</head>
+
+<body>
+    <!-- 在body底部写脚本 -->
+    <script>
+        function funcInBody() {\*do something*\}
+    </script>
+</body>
+```
+
+## 事件
+
+事件是用户的某种动作，比如鼠标点击、按键、调整页面大小等。一般在通过侦听代码监听事件、依据发生的事件调用函数
+
+* 事件处理器属性
+
+将html标签的事件处理器属性设置为js函数，当事件发生时就会调用函数
+
+```html
+<button onclick="func()"> 调用函数 </button>
+```
+
+当然，这个onclick属性不该写死在html里面，它应该通过js动态赋值。将页面内容与网页行为分离能大大降低开发和维护的难度
+
+```javascript
+// 定义事件处理函数
+bgChange(event) {
+  const rndCol = 'rgb(' + random(255) + ',' + random(255) + ',' + random(255) + ')';
+  e.target.style.backgroundColor = rndCol;
+}
+
+// 只有一个标签
+const btn = document.querySelector('button');
+btn.onclick = bgChange
+
+// 给多个标签绑定相同函数
+const buttons = document.querySelectorAll('button');
+for (let i = 0; i < buttons.length; i++) {
+  buttons[i].onclick = bgChange;
+}
+```
+
+* EventListener
+
+相比于事件处理器属性，事件监听器允许给一个事件绑定多个行为，还能很方便地动态管理这些行为
+
+```javascript
+const btn = document.querySelector('button');
+btn.addEventListener('click', bgChange);
+btn.removeEventListener('click', bgChange);
+```
 
 ## 数据类型与变量
 
 ```javascript
-//基本类型
-var x;      //undefined
-x = 1.5;    //number
-x = 'Joe';  //string，单引号或者双引号均可
-x = true;   //boolean
-x = null;   //值为null，类型不变
+// 基本类型
+var x;      // undefined
+x = 1.5;    // number
+x = 'Joe';  // string，单引号或者双引号均可
+x = true;   // boolean
+x = null;   // 值为null，类型不变
 x = undefined;
-            //值和类型都不定，null == undefined，但null !== undefined
+            // 值和类型都不定，null == undefined，但null !== undefined
 
-//引用类型
-var arr = new Array();  //这样定义的数组和python的差不多
-var arr2 = [1, 4];
-var person = {name:"John", age:14};
-    //object，可以用person["name"]或person.name来引用
-
-//typeof
-typeof x;   //返回x的类型
-
-//强制类型转换，以String为例，Number也类似
-String(x);
-x.toString();
-```
-
-### 字符串
-
-```javascript
+// 字符串
 var str = 'some string';
-
 str.length;
-
 str.search('/regular expression/i')
-    //返回子串起始位置
-    //js中的正则表达式：/表达式内容/[修饰]
-    //一些常用修饰：i不区分大小写，g全局匹配，m多行匹配
-
+    // 返回子串起始位置
+    // js中的正则表达式：/表达式内容/[修饰]
+    // 一些常用修饰：i不区分大小写，g全局匹配，m多行匹配
 str.replace('pattern', 'repl')
 
-//RegExp对象
+// RegExp对象
 var pattern = /regexp/
 pattern.test('string')
-    //测试string是否匹配pattern模式，返回boolean
+    // 测试string是否匹配pattern模式，返回boolean
+
+// 引用类型
+var arr = new Array();  // JS数组和python列表差不多
+var arr2 = [1, 4];
+var person = {name:"John", age:14};
+    // object，可以用person["name"]或person.name来引用
+
+// typeof
+typeof x;   // 返回x的类型
+
+// 强制类型转换，以String为例，Number也类似
+String(x);
+x.toString();
 ```
 
 ### 变量提升
@@ -219,14 +344,6 @@ finally {/*不论有没有捕捉到错误都会运行*/}
 throw exception;  //异常可以是字符串、数字、逻辑值或对象
 ```
 
-### 错误处理
-
-| 语句  |
-| ----- |
-| try   |
-| throw |
-| catch |
-
 ## 函数
 
 用关键字function声明函数，函数内变量生存期为函数执行期间，作用域为函数内；函数外的为网页存续期间，作用域为整个网页；可以给未声明的变量赋值，它会自动称为网页的属性（可以删除）
@@ -258,5 +375,5 @@ window.var1;  // == 1
 <button onclick="displayDate()">现在的时间是?</button>
 ```
 
-# 一个实例
+
 

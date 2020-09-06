@@ -49,10 +49,10 @@ Out-File
 Get-Process | Export-Csv filename.csv
 Get-Process | Export-Clixml filename.xml
 
-cls		清屏
-ren 文件名 文件名	重命名（可以结合通配符批量进行）
-move		移动文件
-tree [/f]		文件夹树[文件树]
+cls         # 清屏
+ren         # 重命名（可以结合通配符批量进行）
+move        # 移动文件
+tree [/f]   # 文件夹树[文件树]
 ```
 
 ## 网络
