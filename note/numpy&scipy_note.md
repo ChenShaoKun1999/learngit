@@ -1,6 +1,8 @@
+# numpy
+
 numerical python
 
-# 数据类型
+## 数据类型
 
 | type              | description                                |
 | ----------------- | ------------------------------------------ |
@@ -13,18 +15,18 @@ numerical python
 
 默认数据类型`int_`, `float_`, `complex_`
 
-# ndarrray
+## ndarrray
 
 N维定长数组，表示一个标量/矢量/矩阵/张量
 要求元素数据类型统一，可以进行优化过的矩阵操作
 
-## indexing
+### indexing
 
-### simple indexing
+- **simple indexing**
 
  一维同list；高维数组可以用类似`array[1, -1]`的方式引用
 
-### bool indexing
+- **bool indexing**
 
 用一个同shape的布尔数组来索引
 
@@ -35,7 +37,7 @@ arr[bool_arr]   # array([1, 3, 1])
 arr[arr > 1]    # array([3, 2])
 ```
 
-### fancy indexing
+- **fancy indexing**
 
 用一个array-like object进行索引。用ndarray做fancy indexing好像会有奇怪的错误
 
@@ -45,7 +47,7 @@ arr[[0, 2, 4]]       # 第0, 2, 4行
 arr[[1, 1], [2, 5]]  # (1, 1)和(2, 5)元素
 ```
 
-### slice
+- **slice**
 
 类似内建的切片，但切片的部分不会被复制
 
@@ -56,7 +58,7 @@ array[0:5, ::-1]
 
 
 
-## 初始化
+### 初始化
 
 ```python
 #一般的
@@ -105,14 +107,14 @@ identity(n, dtype=None)
 array([False, False, False, False,  True])
 ```
 
-## 属性
+### 属性
 
     shape       ndarray的形状，即有几个维度、每个维度有多长
                 ()          0维数组（标量）
                 (5,)        长度为5的一维数组
                 (3, 8, 8)   容量为3*8*8的三维数组
     dtype       数据类型
-## 方法
+### 方法
 
     reshape(shape, order='C')
         修改ndarray的shape，但是总长度不能变
@@ -122,9 +124,9 @@ array([False, False, False, False,  True])
         即使dtype和self的类型相同，同样会返回一个拷贝
     a.copy(order='C')
         返回自身的一个拷贝
-## 运算
+### 运算
 
-### 常量运算
+- **常量运算**
 
 常量与ndarray运算，两个shape相同的nearray进行运算，或者数学函数作用于ndarray，相当于其中的逐个元素进行运算
 
@@ -142,7 +144,22 @@ array([  1,   8,  27,  64, 125])
 array([1., 2., 3., 4., 5.])
 ```
 
-### 矩阵运算
+不同shape的矩阵之间投影后逐元素运算
+
+```python
+import numpy as np
+
+arr2d = np.array([[1, 2], [3, 4]])
+arr1d = np.array([2, 1])
+arr2d - arr1d    # shape分别是(2, 2)和(2, )，结果是array[[-1, 1], [1, 3]]
+
+img_color = np.zeros(shape=(600, 600, 3))
+img_gray = np.zeros(shape=(600, 600))
+# (600, 600, 3)和(600, 600)不能运算
+img_color - img_gray[:, :, None]    # (600, 600, 3)和(600, 600, 1)可以运算
+```
+
+- **矩阵运算**
 
 ```python
 # 矩阵乘法。以下两种方法等价，不改变原矩阵
@@ -153,7 +170,7 @@ A.dob(B)
 A.T
 ```
 
-# 函数
+## 函数
 
 ```python
 np.argmax(A)        #返回第一个最大值在扁平化数组（相当于A.reshape((n,))）中的index
@@ -167,5 +184,133 @@ set_printoptions	#设置打印格式（全局），参数举例：
                     #precision=3, suppress=True 小数点后三位，不使用科学记数法
                     #formatter={'float': '{: 0.3f}'.format}
                     #linewidth=90 一行的长度，到了这么多字符就自动换行
+```
+
+## 随机
+
+```python
+import numpy as np
+from numpy.random import Generator, PCG64
+
+np.random.random()                      # 产生[0, 1)均匀分布随机浮点数
+np.random.integers(10, 20, size=(5, 5)) # 产生[10, 20)均匀独立分布5x5整数数列
+np.random.normal(0, 1.0, size=10)       # 产生长度为10的标准正态分布数列
+random.choice(a=[0, 1], p=[0.3, 0.7])   # 已知的离散分布
+
+# 也可以显式创建一个生成器
+seed = 12345  # None, int or Array[int]。当缺省/为None时从操作系统取一个随机值
+rg = Generator(PCG64(seed))
+rg.normal()
+```
+
+# how-to
+
+## 求解常微分方程初值问题
+
+`solve_ivp(fun, t_span, y0, method='RK45', t_eval=None, dense_output=False, events=None, vectorized=False, args=None, **options)`
+
+- fun：`Callable[t, y]`，t是时间（自变量），y是因变量或者因变量序列
+- t_span：`Tuple[number, number]`，要求解的时间范围
+- y0：`Array[number]`，初值
+- t_eval：`Array[number]`，差分节点
+
+返回值是个solve对象，打印出来再和后面的例子对照着看就能明白怎么用了
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+
+# 一阶常微分方程
+# 例：y' = e^-t * cost - y，且t = 0时y = 0。解析解为y = e^-t * sint
+dy_dt = lambda t, y: np.exp(-t) * np.cos(t) - y
+sol = solve_ivp(dy_dt, [0, 10], [0], t_eval=np.linspace(0, 10))
+plt.plot(sol.t, sol.y[0])
+plt.show()
+
+# 一阶常微分方程组
+# 例：y0' = y1, y1' = -y0，且t = 0时y0 = 0，y1 = 1。解析解为y0 = sint, y1 = cost
+dy_dt = lambda t, y: [y[1], -y[0]]
+sol = solve_ivp(dy_dt, [0, 10], [0, 1], t_eval=np.linspace(0, 10))
+plt.subplots()
+plt.plot(sol.t, sol.y[0])
+plt.plot(sol.t, sol.y[1])
+plt.show()
+```
+
+高阶常微分方程处置问题也可以用这个方法来解。例：
+$$
+\left\{
+\begin{aligned}
+&\frac{d^2y}{dt^2} + \frac{dy}{dt} + y = 0 \\
+&y|_{t = 0} = 1  \\
+&\frac{dy}{dt}|_{t = 0} = 0 \\
+\end{aligned}
+\right.
+$$
+
+令$u_0 = y, u_1 = \frac{dy}{dt}$，则方程化为一阶线性方程组
+$$
+\left\{
+\begin{aligned}
+&\frac{du_0}{dt} = u_1 \\
+&\frac{du_1}{dt} = -u0 - u1  \\
+&u_0(0) = 1 \\
+&u_1(0) = 0 \\
+\end{aligned}
+\right.
+$$
+
+## 傅里叶变换
+
+```python
+from numpy.fft import fft
+
+t = np.linspace(0, 1000)
+y = 4*np.sin(2*t) + np.sin(4*t)
+f = fft(y)
+```
+
+## 巴特沃夫滤波
+
+```python
+import numpy as np
+import scipy.signal as signal
+
+t = np.linspace(0, 100)
+y = np.sin(2 * np.pi * t) + np.cos(20 * np.pi * t)
+max_freq = 5
+sos = signal.butter(10, max_freq, 'lowpass', output='sos')
+filtered = signal.sosfilt(sos, y)
+```
+
+## 寻找极大值/极小值/局部极值
+
+```python
+import numpy as np
+import scipy.signal as signal
+
+# 假设arr是一个有噪声的序列，局部极值之间的距离大于100。极小值同理，找-arr的极大值
+maxima, _ = signal.find_peaks(arr, distance=100)
+```
+
+## 任意函数拟合
+
+```python
+from scipy.optimize import curve_fit
+
+# 假设对x, y做线性拟合
+linear = lambda x, k, b: k * x + b
+popt, pcov = curve_fit(linear, x, y)
+# popt = [k, b]
+# pcov = 协方差
+y_fit = linear(x, *popt)
+```
+
+## 寻找最大值
+
+```python
+import numpy as np
+index = np.argmin(arr)
 ```
 
