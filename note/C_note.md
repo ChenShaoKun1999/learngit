@@ -45,7 +45,7 @@ extern	声明外部变量时使用
 
 ## 条件判断
 
-```
+```c
 if (表达式) 语句
 else if (表达式) 语句
 else 语句
@@ -58,7 +58,7 @@ switch(整型表达式) {
 
 ## 循环结构
 
-```
+```c
 while (表达式) 语句
 
 do {语句} while (表达式)
@@ -139,6 +139,7 @@ argv[0]是程序名，argv[i]是参数，argc是参数个数（程序名也被�
 
 # 结构体
 
+```c
 struct 结构类型名 {
 	数据类型1 成员1;
 };
@@ -149,6 +150,9 @@ struct student {
 };
 struct student s1={20141221, "chen", 'M'), s2;
 s2=s1;
+```
+
+
 注：可整体赋值，不可比较
 
 结构变量.成员名
@@ -167,7 +171,7 @@ typedef int *P	P为int *型变量
 
 结构体类型FILE
 
-```
+```c
 FILE *fopen(char *filename, char *mode)
 	模式	含义		解释	
 	r	read		以读方式打开，若未找到文件，打开失败
@@ -207,7 +211,7 @@ long ftell(FILE *stream)
 
 （头文件按照字母排序，函数按照使用频率、用途、心情等原则排序）
 
-```
+```c
 函数说明部分按照我看得懂为原则。函数原型也是只要不影响理解和使用，不完全依照其原型（如unsigned int 写成int）
 math.h
 	abs, fabs			整数、浮点数的绝对值

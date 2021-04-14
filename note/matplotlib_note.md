@@ -142,12 +142,31 @@ text(x, y, s)
 
 ```
 show        显示图形
-savefig     保存为文件，参数filename, format, dpi等
+savefig     保存为文件, see also fig.savefig
 gca         get current axes
 gcf         get current figure
 cla         clear current axes
 clf         clear current figure (注意：figure.close()才能完全释放内存)
 sca         set current axes，把指定的Axes实例设置为活跃区的Axes
+```
+
+# 坐标轴与边框
+
+坐标轴（Axis）和边框（Spines）都从属于Axes
+
+```python
+from matplotlib import pyplot as plt
+
+fig, ax = plt.subplots()
+
+# 边框颜色
+color = '#dddddd'
+ax.spines['bottom'].set_color(color)
+ax.tick_params(axis='both', colors=color)
+ax.xaxis.label.set_color(color)  # y轴设置略去
+
+# 设置tick
+ax.tick_params
 ```
 
 # 动态图
@@ -185,5 +204,86 @@ def main():
 if __name__ == '__main__':
     import sys
     sys.exit(main())
+```
+
+# 3D图
+
+## surface plot
+
+`Axes3D.plot_surface(self, X, Y, Z, *args, norm=None, vmin=None, vmax=None, lightsource=None, **kwargs)`
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+# X, Y, Z是相同shape的二维数组
+X, Y = np.meshgrid(np.linspace(-5, 5), np.linspace(-5, 5))
+R = np.sqrt(X**2 + Y**2)
+Z = np.sin(R)
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.plot_surface(X, Y, Z)
+```
+
+plot using colormap
+
+```python
+from matplotlib import cm
+
+surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
+# Add a color bar which maps values to colors.
+fig.colorbar(surf, shrink=0.5, aspect=5)
+```
+
+# Colormap
+
+```python
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib import colors
+
+fig, ax = plt.subplots(2)
+
+# Make data
+X, Y = np.meshgrid(np.linspace(-5, 5), np.linspace(-5, 5))
+R = np.sqrt(X**2 + Y**2)
+Z1 = np.sin(R)
+Z2 = np.exp(-(X)**2 - (Y)**2)
+
+# Simple colormap (with colorbar)
+pcm = ax[0].pcolormesh(X, Y, Z1, cmap='inferno')
+fig.colorbar(pcm, ax=ax[0])
+
+# Logarithm colorbar
+pcm = ax[1].pcolormesh(X, Y, Z2, cmap='Purples',
+                       norm=colors.LogNorm(vmin=Z2.min(), vmax=Z2.max()))
+fig.colorbar(pcm, ax=ax[1])
+
+plt.show()
+```
+
+# 局部放大
+
+```python
+from matplotlib import pyplot as plt
+
+fig, ax = plt.subplots()
+axins = ax.inset_axes([0.6, 0.6, 0.37, 0.37])  # 四个参数是左下角坐标以及宽高。单位是ax的宽高
+
+# Make data
+X, Y = np.meshgrid(np.linspace(-5, 5), np.linspace(-5, 5))
+R = np.sqrt(X**2 + Y**2)
+Z = np.sin(R)
+
+# Plot same things to ax & axins
+ax.imshow(Z, cmap='Purples')
+axins.imshow(Z, cmap='Purples')
+
+# Zoom in
+x1, x2, y1, y2 = -0.5, 0.5, -0.5, 0.5
+ax.indicate_inset_zoom(axins)
+
+plt.show()
 ```
 

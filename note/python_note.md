@@ -1164,14 +1164,14 @@ import csv
 
 # 读csv文件
 with open('whatever.csv', 'r') as fp:
-    reader = csv.read(fp)
+    reader = csv.reader(fp)
     for line in reader:
         print(reader.line_num, line)   # 字符串列表
 
 # 读取为字典
 with open('whatever.csv', 'r') as fp:
     dict_reader = csv.DictReader(fp)
-    for line in reader:
+    for line in dict_reader:
         print(line)  # 字典，用第一行内容作为键
 
 # 写csv文件
@@ -1412,6 +1412,17 @@ obj = pickle.loads(pickle_bytes)
 
 ## re (regular expression)
 
+```python
+import re
+
+pattern = r'\d{1,5}'
+string = 'temp=12'
+match = re.search(pattern, string)
+match.group()
+```
+
+
+
 函数
 
 ```
@@ -1587,8 +1598,8 @@ warnings.warn('mesage', UserWarning)
 import wave
 
 # 读wav文件
-with open('test.wav', 'rb') as fp:
-    fp.getchannels()       # 声道数量
+with wave.open('test.wav', 'rb') as fp:
+    fp.getnchannels()      # 声道数量
     fp.getsampwidth()      # 采样深度（字节数）
     fp.getframerate()      # 采样频率
     fp.readframes(100)     # 读取并返回bytes对象的n帧音频
