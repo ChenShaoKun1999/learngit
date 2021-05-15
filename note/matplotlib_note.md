@@ -32,7 +32,7 @@ ax.set_title('example')
 plt.show()
 ```
 
-两种方法相比，显然OO更好。Explicit is better than implicit
+两种方法相比，显然OO更好
 
 # 图片元素
 
@@ -63,70 +63,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 初始化Figure和Axes
-# 使用figure.add_subplot建立axes
-fig = figure()
-ax1 = fig.add_subplot(1, 2, 1)  # 一行两列，一共给fig加了两个Axes，返回是第一个
-ax2 = fig.add_subplot(1, 2, 2)  # 返回第二个Axes（Axes的排序方式是从左到右，从上到下）
-# 使用plt.subplots建立axes
 fig, ax = plt.subplots(1, 2)    # ax是Array[Axes]
 
 # 绘图
 x = np.linspace(0, 1)
 y = np.exp(x)
-line = ax1.plot(x, y)
-scatter = ax2.scatter(x**2, y)
+line = ax.plot(x, y, label='line')
+scatter = ax.scatter(x**2, y)
 
 # 设置标题，标签
-ax1.set_title('axes 1')   # 注意每个Axes有自己的标题，figure还有一个大标题
+ax1.set_title('axes 1')   # 每个Axes有自己的标题，figure还有一个大标题
 fig.suptitle('example')   # figure标题
 ax1.set_xlabel('x')
 ax1.set_ylabel('$e^x$')   # 使用latex
 
-# 设置坐标轴
-ax1.set_xscale('log')  # 坐标系选取
-ax1.set_xlim(0, 1)     # 坐标范围。可以用get_xlim获取
-ax1.tick_params('x', which='both', left=False) # tick样式
-ax1.set_xticks(np.linspace(0, 1, 5))           # tick位置
-ax1.set_xticklabels([*'12345'])              # tick标签
-
-# 另一种设置tick的方式
-xt = ax1.get_xticks()
-xtl = ax1.get_xticklabels()
-# edit xt and xtl
-ax1.set_xticks(xt)
-ax1.set_xticklabels(xtl)
-
 # 其他
 ax1.grid()  # 网格
+ax1.legend(loc='lower right')  # 绘制标签，即绘图时的label参数
 plt.tight_layout()  # 自动调整排版
+
+# 显示图片
+plt.show()
+
+# 保存图片（不能先显示再保存，会出问题。但可以先保存再显示）
+fig.savefig('fig.png', dpi=600, transparent=True, format='png')
+
+# 关闭图片并释放内存
+fig.close()
 ```
 
-# 绘图
-
-## 折线图
-
-`plot([x], y, [fmt], ...)`
-
-绘制折线图，省略x则按照1, 2, ...，fmt参数可以调整绘制格式(fmt同MATLAB的格式)
-
-重复多组x, y, fmt/多个plot函数，能够在一张图上绘制多个函数
-
-fmt常用格式：rgbyk表示颜色，-直线，--虚线，-.点划线，.o+s^不同形状的点
-
-# 绘图参数
+# 杂项
 
 ```
+format      线条格式，-直线，--虚线，-.点划线，.o+s^不同形状的点
 setp        修改图线参数(粗细，颜色，etc.)，并返回其当前参数
             example:
             line = plt.plot([1, 2, 3])
             plt.setp(line, linesidth=2.0)
             也可以调用line的方法调整
-xlabel, ylabel
-            坐标轴的标签
-xscale, yscale
-            对数坐标等，"linear", "log", "symlog", "logit", ...
-title       标题
-legend      添加图例，在需要图例的plot函数添加label参数
 annotate(s, xy, *args, **kwargs)
             添加注释
             s       str, 注释内容
@@ -138,9 +112,7 @@ text(x, y, s)
             xlabel, title等其实都是text的wrapper
 ```
 
-# 其他函数
-
-```
+```python
 show        显示图形
 savefig     保存为文件, see also fig.savefig
 gca         get current axes
@@ -150,7 +122,34 @@ clf         clear current figure (注意：figure.close()才能完全释放内�
 sca         set current axes，把指定的Axes实例设置为活跃区的Axes
 ```
 
-# 坐标轴与边框
+# figure与axes
+
+```python
+from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
+
+# 基本的初始化。产生一副高8英寸、宽4英寸，有2行2列子图的图
+fig, ax = plt.subplots(figsize=(8, 4), ncols=2, nrows=2, tight_layout=True)
+ax[0, 0]    # 左上角的子图
+ax[1, 0]    # 左下角的子图
+
+# 另一种常用写法
+fig, (ax1, ax2) = plt.subplots(ncols=2)
+
+# 复杂的子图排布
+# ╓═══════════╖
+# ║    ax0    ║
+# ╟═════╥═════╢
+# ║ ax1 ║ ax2 ║
+# ╙═════╨═════╜
+fig = plt.figure(figsize=(8, 4), tight_layout=True)
+gs = GridSpec(2, 2)
+ax0 = fig.add_subplot(gs[0, :])
+ax1 = fig.add_subplot(gs[1, 0])
+ax2 = fig.aadd_subplot(gs[1, 2])
+```
+
+# 坐标轴、边框与刻度
 
 坐标轴（Axis）和边框（Spines）都从属于Axes
 
@@ -165,21 +164,154 @@ ax.spines['bottom'].set_color(color)
 ax.tick_params(axis='both', colors=color)
 ax.xaxis.label.set_color(color)  # y轴设置略去
 
-# 设置tick
-ax.tick_params
+# 设置坐标轴刻度
+ax1.set_xscale('log')  # 坐标系选取
+ax1.set_xlim(0, 1)     # 坐标范围。可以用get_xlim获取
+ax1.tick_params('x', which='both', left=False) # tick样式
+ax1.set_xticks(np.linspace(0, 1, 5))           # tick位置
+ax1.set_xticklabels([*'12345'])              # tick标签
+
+# 另一种设置tick的方式
+xt = ax1.get_xticks()
+xtl = ax1.get_xticklabels()
+# edit xt and xtl
+ax1.set_xticks(xt)
+ax1.set_xticklabels(xtl)
+
+# 关闭坐标轴和坐标刻度
+ax.axis('off')
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+
+# 去掉右上边框并调整坐标轴位置
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.xaxis.set_position('bottom')
+ax.spines['bottom'].set_position('zero')
+ax.yaxis.set_position('left')
+ax.spines['left'].set_position(('data', 0))  # 'zero'和('data', 0)两种写法效果相同
+```
+
+# 文字与箭头
+
+```python
+from matplotlib import pyplot as plt
+
+fig, ax = plt.subplots()
+ax.plot([0, 10], [0, 10])
+
+# 绘制文字。title、xlabel之类的其实都是用装饰器包装起来的text
+ax.text(5, 2, 'example text on point (1, 5)')
+
+# 绘制文字以及箭头。也可以留空文字仅绘制箭头
+text_pos, point_at = (2, 7), (4, 4)
+ax.annotate('example text with line', point_at, text_pos, arrowprops={'arrowstyle':'->'})
+```
+
+# 基本绘图
+
+## 条形图
+
+```python
+from matplotlib import pyplot as plt
+import numpy as np
+from itertools import chain
+
+fig, ax = plt.subplots()
+
+# make data
+x = np.arange(10)
+group1 = np.random.randint(10, 20, size=10)
+group2 = np.random.randint(15, 25, size=10)
+
+# plot
+rects1 = ax.bar(x-0.2, group1, width=0.4)
+rects2 = ax.bar(x+0.2, group2, width=0.4)
+
+# 在每个条形上面标注数字
+for rect in chain(rects1, rects2):
+    center = rect.get_x() + rect.get_width()/2
+    height = rect.get_height()
+    ax.text(center, height+1, f'{height:.1f}', ha='center', va='bottom')
+
+plt.show()
+```
+
+## 直方图
+
+```python
+from matplotlib import pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots()
+
+# make data
+data = np.random.normal(size=1000)
+mu, sigma = np.mean(data), np.std(data)
+
+# plot
+ax.hist(data, bins=10, edgecolor='white')
+
+ax.set_xlim(mu-5*sigma, mu+5*sigma) # 实践显示这个范围画出来的图比较好看
+plt.show()
+```
+
+
+
+## 误差杆
+
+```python
+from matplotlib import pyplot as plt
+import numpy as np
+
+fig, axs = plt.subplots(nrows=2)
+
+# make data
+N = 14
+x = np.arange(1, N+1)
+y = np.arange(0, N)
+x_err = 0.1*np.sqrt(x)
+y_err = np.sqrt((x-1)*(N-x)/(N-1))
+
+# 对称误差杆
+ax = axs[0]
+ax.errorbar(x, y, xerr=x_err, yerr=y_err, fmt='o', capsize=2)
+
+# 不对称误差杆
+ax = axs[1]
+ax.errorbar(x, y, xerr=[x_err, x_err*0.3], yerr=[y_err/2, y_err], fmt='--o')
+
+plt.show()
+```
+
+## 区域填充
+
+```python
+from matplotlib import pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots()
+
+# make data
+x = np.linspace(0, 1)
+y1 = x
+y2 = x ** 2
+
+# plot
+ax.fill_between(x, y1, y2, alpha=0.6)
+
+plt.show()
 ```
 
 # 动态图
 
 `FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, *, cache_frame_data=True, **kwargs)`
 
-* fig: pyplot figure
-* func : `func(frame, *fargs) -> Iterable[artist]`，回调函数，绘制每一帧。如果`blit == True`，必须返回所有被修改 / 创建的Artist的迭代器，否则无法正常绘制；如果`blit == False`，返回值无所谓
+* func : `func(frame, *fargs) -> Iterable[artist]`，回调函数，绘制每一帧
 * frames：`Union[Iterable[object], int, None]`，迭代结果作为参数被传给func，使用int时相当于range，使用None相当于itertools.count
-* init_func：初始化函数
 * fargs：调用func的额外参数
 * interval：number，两帧之间的间隔时间，单位毫秒，默认200
-* blit：bool，当blit = True时，只有被修改的Artist才被重新绘制
+* blit：bool，当`blit = True`时，只有被func返回的Artist才被重新绘制；否则全部重绘，无视func返回值
 
 ```python
 import numpy as np
@@ -191,19 +323,14 @@ def update(phase, line):
     line.set_ydata(np.roll(y, -5))
     return [line]
 
-def main():
-    fig, ax = plt.subplots()
-    x = np.linspace(0, 2*np.pi, 100, endpoint=False)
-    line = ax.plot(x, np.sin(x))
-    anim = FuncAnimation(fig, func=update, frames=np.linspace(0, 2*np.pi, 100),
-            fargs=line, blit=True) 
-    # 注意！一定要将animation赋给一个变量，否则没有引用，会被当作垃圾清理
-    plt.show()
-    return 0
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+fig, ax = plt.subplots()
+x = np.linspace(0, 2*np.pi, 100, endpoint=False)
+line = ax.plot(x, np.sin(x))
+anim = FuncAnimation(fig, func=update, frames=np.linspace(0, 2*np.pi, 100),
+        fargs=line, blit=True) 
+# 注意！一定要将animation赋给一个变量，否则会被gc
+plt.show()
+return 0
 ```
 
 # 3D图

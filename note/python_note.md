@@ -36,6 +36,10 @@ b = b'this is bytes, not string'
 
 s1 + s2   # 字符串拼接
 s1 == s2  # 比较是否相等
+
+# 格式化字符串
+pi = 3.1415926
+f'pi = {pi:.2f}'
 ```
 
 ### 方法
@@ -953,7 +957,7 @@ ThreadLocal可以帮助参数在不同线程中传递
 
 # 内建模块
 
-## argparse
+## argparse（命令行参数）
 
 ### 建立分析器
 
@@ -1007,11 +1011,11 @@ args.long  # None
 
 
 
-## collections
+## collections（容器）
 
 ### 队列
 
-deque([iterable[, maxlen]]) --> deque object
+`deque([iterable[, maxlen]]) --> deque object`
 
 在队列两端插入或删除元素时间复杂度都是o(1)，而在列表的开头插入或删除元素的时间复杂度为O(N)
 
@@ -1077,7 +1081,7 @@ chain['z']  # = 1，有重复键时只对第一个进行操作
 
 注意：进行修改和删除时只作用于第一个字典，遍历时重复键也只有第一个。如果不需要保留原本字典，或许用dict.update更好
 
-## configparse
+## configparse（使用配置文件）
 
 一般建议把配置（比如说登录的端口，etc.）单独放进一个文件而不是硬编码在程序里面，此模块就是专门用来解析config.ini文件的
 
@@ -1157,7 +1161,7 @@ with open('example.ini', 'w', encoding='utf-8') as fp:
     config.write(fp)
 ```
 
-## csv
+## csv（读写CSV文件）
 
 ```python
 import csv
@@ -1184,7 +1188,9 @@ with open('whatever.csv', 'w') as fp:
 
 
 
-## datetime
+## datetime（时间）
+
+有两个时间的库：time和datetime，前者更接近操作系统层面，而datetime做了一定的封装，功能更丰富，用起来更容易
 
 ```python
 from datetime import datetime, timedelta
@@ -1272,7 +1278,9 @@ parser.feed('example.html')
     # feed之后立即分析整个文档，每当遇到相应元素时，就会调用对应handle函数
 ```
 
-## itertools
+可以用html打开一个http服务器：`python -m html.server 8081 --directory D:\folder`
+
+## itertools（迭代器工具）
 
 ### 分组
 
@@ -1327,7 +1335,7 @@ sum(c)
 
 
 
-## json
+## json（读写JSON文件）
 
 ```python
 import json    # json = JavaScript Object Notation
@@ -1347,7 +1355,7 @@ dump函数的ensure_ascii是python独有的，不是通用编码，所以在非p
 
 可以通过加入参数default=函数（对于dump和dumps）或object_hook（load和loads），其中的函数能将创建的类转化成一个合法的类型（如dict），或者直接`json.dumps(obj.__dict__)`
 
-## logging
+## logging（日志）
 
 | level    | usage                          |
 | -------- | ------------------------------ |
@@ -1368,7 +1376,7 @@ logger.setLevel(logging.INFO)   # 只有大于这个等级的才输出
 logger.info('message')
 ```
 
-## os(operating system)
+## os（操作系统功能）
 
 | function  | usage                                                      |
 | --------- | ---------------------------------------------------------- |
@@ -1384,6 +1392,8 @@ logger.info('message')
 
 ### os.path
 
+pathlib提供了更丰富的功能，应该优先考虑用pathlib
+
 | function | usage              |
 | -------- | ------------------ |
 | abspath  | 绝对路径           |
@@ -1394,7 +1404,43 @@ logger.info('message')
 | isfile   | 判断是否合法文件   |
 | splitext | 分割扩展名         |
 
-## pickle
+## pathlib（路径）
+
+pathlib提供不涉及IO操作的纯路径类（`PurePath, PurePosixPath, PureWindowsPath`）和具体路径类（`Path, PosixPath, WindowsPath`），最常用的是`Path`类，它会按照需要自动实例化为`PosixPath`或者`WindowsPath`。在不需要访问操作系统时`PurePath`也有一定用处
+
+```python
+from pathlib import Path
+
+p = Path('.')
+
+# 查询路径属性
+p.exists()
+p.is_dir()
+p.is_file()
+p.resolve() # 绝对路径
+p.parent    # 父目录的路径
+p.anchor    # 盘符
+p.name      # 文件名/目录名
+p.suffix    # 文件后缀，如'.txt'
+p.suffixes  # 目录的扩展名列表
+p.stem      # 无扩展名的最后一个路径组件
+
+# 子文件、子目录
+p.iterdir()         # 迭代子文件和子目录
+p.glob('*/*.py')    # 搜索符合条件的子文件和子目录，返回一个生成器
+
+# 使用斜杠组合路径
+q = p / 'text.txt'
+q = p / Path('text.txt')
+
+# 打开文件
+with q.open() as f:
+    f.readline()
+```
+
+
+
+## pickle（保存对象到文件）
 
 python对象的二进制序列化和反序列化。pickling与其他编程语言不兼容，且不同版本的python之间也未必兼容
 
@@ -1410,7 +1456,7 @@ pickle_bytes = pickle.dumps(obj)
 obj = pickle.loads(pickle_bytes)
 ```
 
-## re (regular expression)
+## re（正则表达式）
 
 ```python
 import re
@@ -1458,9 +1504,7 @@ compile(pattern)
 match	按照pattern匹配字符串，类似re.match
 ```
 
-## sqlite3
-
-嵌入式数据库
+## sqlite3（嵌入式SQL数据库）
 
 ```python
 import sqlite3
@@ -1482,21 +1526,7 @@ cursor.close()
 conn.close()
 ```
 
-
-
-## time
-
-time更接近于操作系统层面，datetime则对time进行了封装，并提供更多功能
-
-函数
-
-```
-time	返回当前的时间戳（函数与模块重名）
-localtime	返回时间戳对应的当前时区的struct_time
-sleep	推迟调用线程（单位：s）
-```
-
-## turtle
+## turtle（海龟画图）
 
 turtle是用于绘图的简单模块，和tk兼容。海龟绘图包含两个要素，绘图区域和画笔。结合tk使用时，对应的类是TurtleScreen和RawTurtle（别名RawPen），构造它们需要提供tk.Canvas。如果单独使用，使用以上两个类的子类Screen和Turtle，Screen是单实例的，而Turtle会在这个Screen实例上绘图，如果Screen实例不存在则会自动创建
 
@@ -1533,7 +1563,7 @@ pen.hideturtle()  # 隐藏海龟标志，可以加速绘制速度
 screen.bye()    # Screen独有
 ```
 
-## urllib
+## urllib（网络）
 
 ### request
 
@@ -1580,19 +1610,7 @@ url = '/dev/peps/'
 parse.urljoin(base, url)  # 返回'https://www.python.org/dev/peps/'
 ```
 
-## warnings
-
-```python
-import warnings
-
-warnings.warn('mesage', UserWarning)
-# available warning classes: UserWarning, DeprecationWarning,
-# SyntaxWarning, RuntimeWarning, ResourceWarning, FutureWarning.
-```
-
-## wave
-
-处理wav文件
+## wave（读写WAV文件）
 
 ```python
 import wave

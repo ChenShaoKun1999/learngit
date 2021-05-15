@@ -221,7 +221,7 @@ case( shape
   )
 ; 如果第一个参数匹配到了某个分支，计算该分支并返回；若未匹配则计算最后一个分支
 
-; for 循环
+; for 循环。注意循环变量只能是int
 sum = 0
 for( i 1 5      ; i从1到5
   sum = sum + i
@@ -348,7 +348,7 @@ boundp('var) && var     ; 如果var有值，求其值；否则得到nil
 
 # 常用函数
 
-## 文件
+## 文件操作
 
 ```lisp
 ; 判断文件存在
@@ -495,17 +495,60 @@ for(v1 0 20
 下一次仿真时，仿真结果会自动被删除。在此之前随时都可以打开
 
 ```lisp
-; 选择仿真结果
-openResults('tran)  ; 打开tran仿真任务的结果
-openResults("~/simulation/testcell/spectre/schemetic/psf")  ; 打开指定的结果
-; 运行第二条之后，打开的结果从'tran切换到指定PSF文件
+; 打开仿真结果
+openResults("~/simulation/testcell/spectre/schemetic/psf")
 
-; 选择数据。默认是从当前选择的仿真结果取数据，也可以指定从别的仿真结果取数据
-VIN = getData("/I0/VIN")
-VOUT = getData("/I0/VOUT")
+; 选择仿真类型
+results()           ; 查看可选结果类别，比如tran，ac等
+selectResult('tran) ; 也可以是selectResults
 
-; 处理数据
+; 处理数据，绘制波形、打印数据
+VIN = v("/VIN")
+IIN = i("/IIN")
 
-; 显示结果
+; cautious: v & i works in mysterious ways
+getData("/VIN")    ; equivalent to VIN
+i("/VIN")          ; equivalent to VIN
+getData("/IIN")    ; equivalent to IIN
+
+; 关闭仿真
+ocnResetResults()
+```
+
+Parametric Analysis的数据获取略有区别。如果打开数据点的psf文件，那就和单次仿真相同；打开schematic文件夹下面的psf文件，可以选择被扫参数
+
+```lisp
+openResults("~/simulation/testcell/spectre/schemetic/psf")
+selectResult('tran)
+; 按照文档，可以用selectResult(result sweep_value)选择参数的值。但是实测第二个参数不影响选中结果
+
+VIN = v("/I0/VIN")      ; 假设有两个被扫参数，那么VIN类似于三维数组，前两维是被扫参数，第三维是时间
+IOUT = i("/I0/IOUT")
+
+; 查看被扫参数。如果参数缺省就会返回当前选中结果的参数
+var = sweepNames(VIN)               ; 返回被扫参数列表
+val = sweepValues(VIN)              ; 第一个参数取值列表
+sweepVarValues(VIN  nth(var 2))     ; 第n个参数取值列表
+v0 = value(val car(var) car(val))   ; 大概可以把waveform当成数组，value当成[]。但是value能够插值
+```
+
+## Plot & Print Data
+
+OCEAN的绘图没有面向对象的形式，只能用面向过程的绘图
+
+```lisp
+; 打开窗口
+win_id = newWindow()    ; 打开新窗口。win_id是一个vtype对象
+clearAll()              ; 或者不开新窗口，而是清除上次绘制的图，在原窗口重新绘图
+; 又或者，什么都不做，直接绘图，和之前的图叠起来
+
+; 绘图
+plot(VIN IOUT ?expr '("VIN" "IOUT"))
+
+; 窗口与子窗口操作
+sub0 = currentSubwindow()   ; 获取当前活动的子窗口
+currentSubwindow(sub0)      ; 切换子窗口
+currentWindow()             ; 获取/设置当前绘图窗口
+sub1 = addSubwindow()       ; 创建并切换到新的子窗口
 ```
 
