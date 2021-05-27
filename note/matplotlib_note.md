@@ -78,7 +78,7 @@ ax1.set_xlabel('x')
 ax1.set_ylabel('$e^x$')   # 使用latex
 
 # 其他
-ax1.grid()  # 网格
+ax1.grid(linestyle='--', color='gray')  # 网格
 ax1.legend(loc='lower right')  # 绘制标签，即绘图时的label参数
 plt.tight_layout()  # 自动调整排版
 
@@ -201,7 +201,7 @@ fig, ax = plt.subplots()
 ax.plot([0, 10], [0, 10])
 
 # 绘制文字。title、xlabel之类的其实都是用装饰器包装起来的text
-ax.text(5, 2, 'example text on point (1, 5)')
+ax.text(5, 2, 'example text on point (1, 5)', ha='center', va='bottom')
 
 # 绘制文字以及箭头。也可以留空文字仅绘制箭头
 text_pos, point_at = (2, 7), (4, 4)

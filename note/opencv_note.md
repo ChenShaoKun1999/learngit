@@ -4,17 +4,12 @@
 
 ```python
 import cv2
+# 不知道为什么语法检查有时候提示有问题，把import语句改成from cv2 import cv2就好了
 import numpy as np
 
-#读取彩色图片。读出来的是一个numpy.ndarray
+#读取图片。读出来的是一个numpy.ndarray
 color_img = cv2.imread('test.jpg')
-print(color_img.shape)
-	#(640, 640, 3)
-
-#读取灰度图
-gray_img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
-print(gray_img.shape)
-	#(640, 640)
+print(color_img.shape)      #(640, 640, 3)
 
 #存储图片。由于jpg格式限制，灰度图会被还原成三通道
 cv2.imwrite('test_grayscale.jpg', gray_img)
@@ -36,7 +31,19 @@ img_conc = np.concatenate((img1,img2), axis=0)
 cv2.threshold(src=img, thresh=127, maxval=255, type=cv2.THRESH_BINARY)
 ```
 
-## 绘制形状
+# 读取图片
+
+```python
+#读取灰度图
+gray_img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+
+# 读取带alpha通道的图
+alpha_img = cv2.imread('test.png', cv2.IMREAD_UNCHANGED)
+```
+
+
+
+# 绘制形状
 
 ```python
 import cv2

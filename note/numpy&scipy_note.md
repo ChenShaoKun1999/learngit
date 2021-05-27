@@ -307,10 +307,39 @@ popt, pcov = curve_fit(linear, x, y)
 y_fit = linear(x, *popt)
 ```
 
-## 寻找最大值
+## 寻找最大值所在位置
 
 ```python
 import numpy as np
 index = np.argmin(arr)
+np.where(arr == 3)
+```
+
+## 排序
+
+```python
+# 基本排序
+arr = np.array([[1, 6, 5], [7, 2, 3]])
+np.sort(arr, axis=-1)   # 沿最后一根axis排序。返回[[1, 5, 6], [2, 3, 7]]，不改变原数组
+arr.sort(axis=0)        # 沿第一根axis排序。返回None，原数组变为[[1, 2, 3], [7, 6, 5]]
+
+# 沿某一行/某一列排序
+arr = np.array([[1, 6, 5], [7, 2, 3]])
+a[:, a[0, :].argsort()]
+a[a[:, 0].argsort()]
+```
+
+## 拼接数组
+
+```python
+arr1 = np.array([1, 2, 3])
+arr2 = np.array([4, 5, 6])
+
+# 沿着某条axis拼接，如将两个一维数组拼成更长一维数组
+arr3 = np.concatenate([arr1, arr2], axis=0)
+
+# 拼至一条新axis，如将两个一维数组拼成二维数组
+arr4 = np.stack([arr1, arr2], axis=0)   # shape = (2, 3)
+arr5 = np.stack([arr1, arr2], axis=1)   # shape = (3, 2)，相当于上一个的转置
 ```
 
