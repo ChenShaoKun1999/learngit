@@ -6,25 +6,29 @@ win + Tab: 虚拟桌面
 
 # mingw编译&make
 
-## 简单源文件的编译&链接
+常用编译选项
 
-```
-g++ -c main.cpp
-g++ -c func.cpp
+| 选项 | 作用                 |
+| ---- | -------------------- |
+| `-c` | 生成目标文件，不链接 |
+| `-l` | 链接库文件           |
+| `-o` | 指定输出文件名       |
+| `-I` | 头文件搜索目录       |
+| `-L` | 库文件搜索目录       |
+
+```powershell
+# 例1：编译+链接
+g++ -c main.cpp  # 编译得到目标文件main.o
+g++ -c func.cpp  # 编译得到目标文件func.o
 g++ main.o func.o -o release.exe
-```
 
-## 源文件与库的链接
-
+# 例2：编译+链接库文件。例子中与pdcurses.dll进行链接
+gcc main.cpp -I "./include" -L "./lib" -lpdcurses
 ```
-gcc main.cpp -I "header directory" -L "lib directory" -lname
-```
-
-其中使用的库文件命名为libname.a（好像也不一定？有奇怪的模糊匹配规则），name可以替换成任何合法名字
 
 ## make
 
-```
+```powershell
 mingw32-make -f Makefile
 ```
 
@@ -36,9 +40,9 @@ mingw32-make -f Makefile
 
 ```makefile
 target: prerequisites    # 注意依赖项最好包括头文件
-	commands             # 必须一个tab缩进
+	commands             # 必须一个tab缩进！不可以用空格
 
-# 实例：
+# 例：
 test.exe: main.cpp func.cpp func.h
 	g++ -g -o test.exe main.cpp func.cpp
 ```
@@ -50,7 +54,16 @@ test.exe: main.cpp func.cpp func.h
 	gcc -c $< -o $@
 ```
 
-其中的`%.c`匹配了当前目录下的所有.c文件，`%.o`表示目标是同名.o文件
+其中的`%.c`匹配了当前目录下的所有.c文件，`%.o`表示目标是同名.o文件（%相当于wildcard）。不过，带匹配符的目标无法直接构造，完整用法如下
+
+```makefile
+all: $(subst .c,.o,$(wildcard *.c))
+# wildcard搜索出了全部.c文件，subst将后缀改为.o，因此依赖项就是所有.o文件
+# make的时候首先构造all，依赖项是各种.o文件，再从匹配符构造.o文件
+
+%.o: %.c
+	gcc -c $< -o $@
+```
 
 * 变量
 
@@ -75,8 +88,6 @@ test:
   * `$(@D), $(@F)`：当前目标的目录名、文件名
   * `$(<D), $(<F)`：第一个依赖项的目录名、文件名
 
-
-
 * 判断与循环
 
 ```makefile
@@ -86,6 +97,41 @@ else
 	commands
 endif
 ```
+
+完整make文件示例：
+
+```makefile
+# Usage: make -f Makefile.txt [DEBUG=Y]
+
+ifdef DEBUG
+	TARGET = test.exe
+	OPT = -g
+else
+	TARGET = main.exe
+	OPT =
+endif
+
+obj_dir = obj
+src_dir = src
+header_dir = include
+lib_dir = lib
+
+SRCS = $(wildcard src/*.cpp)
+OBJS = $(subst $(src_dir),$(obj_dir),$(subst .cpp,.o,$(SRCS)))
+
+# all:
+# 	@echo $(SRCS)
+# 	@echo $(OBJS)
+
+$(TARGET): $(OBJS)
+	g++ $(OPT) $^ -L $(lib_dir) -lFTD3XX -o $(TARGET)
+
+
+$(obj_dir)/%.o: $(src_dir)/%.cpp
+	g++ $(OPT) -I $(header_dir) -c $< -o $@
+```
+
+
 
 # Word
 
